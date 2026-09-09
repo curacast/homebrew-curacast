@@ -31,7 +31,8 @@ and are kept across upgrades. Back that folder up.
 - `$(brew --prefix)/bin/curacast` — a small wrapper that points Curacast at
   Homebrew's ffmpeg.
 - A `brew services` definition running Curacast on port 8000 with its data in
-  `$(brew --prefix)/var/curacast` and its log in `$(brew --prefix)/var/log/curacast.log`.
+  `$(brew --prefix)/var/curacast` and its logs in `$(brew --prefix)/var/log/curacast/`
+  (`curacast.log` is the application log, `service.log` anything launchd caught).
 
 Change the port or data directory by editing the service with
 `brew services edit curacast`, or run it yourself:

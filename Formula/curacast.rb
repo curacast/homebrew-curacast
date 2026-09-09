@@ -2,23 +2,34 @@
 # frozen_string_literal: true
 
 # Curacast for macOS, installed from a compiled build. See the tap README.
+#
+# The bottles are the install path: Homebrew unpacks them and needs no Xcode
+# Command Line Tools. The url/sha256 pair is the same content as a plain
+# tarball, used only by `brew install --build-from-source`. Both come from
+# scripts/build-macos.sh in the Curacast repo, one run per architecture, and
+# are attached to this tap's GitHub release for the version.
 class Curacast < Formula
-  desc "Your media library as live TV: 24/7 channels for Plex, Jellyfin and Emby with a real guide"
+  desc "Your media library as live TV: 24/7 channels for Plex, Jellyfin and Emby"
   homepage "https://curacast.tv"
   version "2.1.0"
   license :cannot_represent
 
-  on_arm do
+  if Hardware::CPU.arm?
     url "https://github.com/curacast/homebrew-curacast/releases/download/v2.1.0/curacast-2.1.0-darwin-arm64.tar.gz"
     sha256 "ARM64_SHA256"
-  end
-  on_intel do
+  else
     url "https://github.com/curacast/homebrew-curacast/releases/download/v2.1.0/curacast-2.1.0-darwin-x64.tar.gz"
     sha256 "X64_SHA256"
   end
 
-  depends_on :macos
+  bottle do
+    root_url "https://github.com/curacast/homebrew-curacast/releases/download/v2.1.0"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "ARM64_BOTTLE_SHA256"
+    sha256 cellar: :any_skip_relocation, big_sur:       "X64_BOTTLE_SHA256"
+  end
+
   depends_on "ffmpeg"
+  depends_on :macos
 
   def install
     # The tarball is one directory: the compiled binary, the SQLite addon it
@@ -27,25 +38,22 @@ class Curacast < Formula
     libexec.install Dir["*"]
 
     # The command people run, and the one the service runs: production
-    # logging (the build ships no dev pretty-printer), and the ffmpeg this
-    # formula depends on, so a fresh install finds an encoder without a trip
-    # to Settings. Hardware encoding (VideoToolbox) is Homebrew ffmpeg's own.
+    # logging (the build ships no dev pretty-printer) into var/log, and the
+    # ffmpeg this formula depends on, so a fresh install finds an encoder
+    # without a trip to Settings. Hardware encoding (VideoToolbox) is
+    # Homebrew ffmpeg's own. The bottle ships this same wrapper.
     (bin/"curacast").write_env_script libexec/"curacast",
-      NODE_ENV:            "production",
-      CURACAST_FFMPEG_PATH: Formula["ffmpeg"].opt_bin/"ffmpeg"
-  end
-
-  def post_install
-    (var/"curacast").mkpath
-    (var/"log").mkpath
+      NODE_ENV:             "production",
+      LOG_DIR:              var/"log/curacast",
+      CURACAST_FFMPEG_PATH: formula_opt_bin("ffmpeg")/"ffmpeg"
   end
 
   service do
     run [opt_bin/"curacast", "--database", var/"curacast", "--port", "8000"]
     keep_alive true
     working_dir var/"curacast"
-    log_path var/"log/curacast.log"
-    error_log_path var/"log/curacast.log"
+    log_path var/"log/curacast/service.log"
+    error_log_path var/"log/curacast/service.log"
   end
 
   def caveats
@@ -58,7 +66,9 @@ class Curacast < Formula
       Your channels, settings and licence live in:
         #{var}/curacast
       Back that folder up. Updates keep it:
-        brew upgrade curacast
+        brew upgrade curacast && brew services restart curacast
+
+      Logs: #{var}/log/curacast/
 
       Plex on the same Mac: add the tuner at http://localhost:8000 (protected
       streaming puts the key in the URL shown in Settings).
@@ -74,14 +84,16 @@ class Curacast < Formula
       exec bin/"curacast", "--database", testpath/"data", "--port", port.to_s
     end
     begin
-      body = nil
+      body = ""
       45.times do
         sleep 1
-        body = shell_output("curl -s -m 2 http://127.0.0.1:#{port}/health", 0) rescue nil
-        break if body&.include?("\"database\"")
+        body = Utils.safe_popen_read("curl", "-s", "-m", "2", "http://127.0.0.1:#{port}/health")
+        break if body.include?("\"database\"")
+      rescue ErrorDuringExecution
+        next
       end
-      assert_match "\"database\":\"ok\"", body.to_s
-      assert_match "\"version\":\"#{version}\"", body.to_s
+      assert_match "\"database\":\"ok\"", body
+      assert_match "\"version\":\"#{version}\"", body
     ensure
       Process.kill("TERM", pid)
       Process.wait(pid)
