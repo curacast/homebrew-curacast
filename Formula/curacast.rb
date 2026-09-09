@@ -16,16 +16,16 @@ class Curacast < Formula
 
   if Hardware::CPU.arm?
     url "https://github.com/curacast/homebrew-curacast/releases/download/v2.1.0/curacast-2.1.0-darwin-arm64.tar.gz"
-    sha256 "ARM64_SHA256"
+    sha256 "746c7599f61df7d44d8641be3b0bbde0cad8bce984c27217dccc4dea3b426f28"
   else
     url "https://github.com/curacast/homebrew-curacast/releases/download/v2.1.0/curacast-2.1.0-darwin-x64.tar.gz"
-    sha256 "X64_SHA256"
+    sha256 "bf373d41cb0005914e641806b766d57b6a5172d232e772c9b801573ce3042a8d"
   end
 
   bottle do
     root_url "https://github.com/curacast/homebrew-curacast/releases/download/v2.1.0"
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "ARM64_BOTTLE_SHA256"
-    sha256 cellar: :any_skip_relocation, big_sur:       "X64_BOTTLE_SHA256"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "2aa3381e9fa66a991dc05a094cdd762fae6cad76300666884725c3fa00b10ad8"
+    sha256 cellar: :any_skip_relocation, big_sur:       "aab3b492843aee9a1b801a2f8c5089bbb27f6697bf1e489bf3af596e511ab549"
   end
 
   depends_on "ffmpeg"
