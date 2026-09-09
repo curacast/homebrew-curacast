@@ -6,10 +6,14 @@ Homebrew's ffmpeg (hardware encoding included) and a `brew services` job
 that survives reboots.
 
 ```sh
+brew trust curacast/curacast   # Homebrew 6 or newer; older versions skip this line
 brew tap curacast/curacast
 brew install curacast
 brew services start curacast
 ```
+
+Homebrew 6 refuses to read a third-party tap until you trust it, and
+`brew tap` itself fails with "invalid syntax in tap" if you skip that step.
 
 Then open <http://localhost:8000>.
 
