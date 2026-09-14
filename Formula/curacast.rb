@@ -11,21 +11,21 @@
 class Curacast < Formula
   desc "Your media library as live TV: 24/7 channels for Plex, Jellyfin and Emby"
   homepage "https://curacast.tv"
-  version "2.6.0"
+  version "2.7.0"
   license :cannot_represent
 
   if Hardware::CPU.arm?
-    url "https://github.com/curacast/homebrew-curacast/releases/download/v2.6.0/curacast-2.6.0-darwin-arm64.tar.gz"
-    sha256 "4cf40a0b4c94c2c2b359f0b741885b14422445ae8642933db5a89321fe5b6d32"
+    url "https://github.com/curacast/homebrew-curacast/releases/download/v2.7.0/curacast-2.7.0-darwin-arm64.tar.gz"
+    sha256 "5b1dd659626ab2cb4a66f8b8cdb6cde513820c8e65845e143b038e01a7faada1"
   else
-    url "https://github.com/curacast/homebrew-curacast/releases/download/v2.6.0/curacast-2.6.0-darwin-x64.tar.gz"
-    sha256 "19df66851cae8c7ab29f48f048d24db677b1fd1f3518b435d285cfecdb49ecc5"
+    url "https://github.com/curacast/homebrew-curacast/releases/download/v2.7.0/curacast-2.7.0-darwin-x64.tar.gz"
+    sha256 "cc647cce911390a0c6b901f8a9030b3c645475a41dca890c6076a2494168e565"
   end
 
   bottle do
-    root_url "https://github.com/curacast/homebrew-curacast/releases/download/v2.6.0"
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "4051b6de390aee33630c9912765528afda55ffa4ebcd326be47f746f66cf0d86"
-    sha256 cellar: :any_skip_relocation, big_sur:       "1bae3e191a85ec2345f9025ace871e018595cbd40ccfe519663926fa321e4c6c"
+    root_url "https://github.com/curacast/homebrew-curacast/releases/download/v2.7.0"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "44cda48330d9473d3025b38d90fb8f26af1674e03926e64a826ba3f00f995fb8"
+    sha256 cellar: :any_skip_relocation, big_sur:       "43b925ca4b5ec3868d32311da49aabecab0d0dda7b50b1b16210c8bd0382c7f7"
   end
 
   depends_on "ffmpeg"
